@@ -50,12 +50,12 @@ class Settings:
             "OPENROUTER_BASE_URL",
             "https://openrouter.ai/api/v1",
         ).rstrip("/")
-        self.app_name = os.getenv("APP_NAME", "Tea")
+        self.app_name = os.getenv("APP_NAME", "Vent")
         self.allowed_origins = [
             origin.strip()
             for origin in os.getenv(
                 "ALLOWED_ORIGINS",
-                "https://your-frontend.vercel.app,http://localhost:3000",
+                "https://your-frontend.vercel.app,http://localhost:3000,http://localhost:3001",
             ).split(",")
             if origin.strip()
         ]

@@ -29,5 +29,5 @@ def configure_logging() -> None:
     )
 
 
-def get_logger(name: str = "tea") -> logging.Logger:
+def get_logger(name: str = "vent") -> logging.Logger:
     return logging.getLogger(name)

@@ -11,6 +11,7 @@ class HealthResponse(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str | None = None
+    is_premium: bool = False
 
 
 class SignupRequest(BaseModel):

@@ -32,14 +32,15 @@ def get_breathing() -> list[BreathingExercise]:
 @router.get("/grounding", response_model=GroundingTechnique)
 def get_grounding() -> GroundingTechnique:
     return GroundingTechnique(
-        title="5-4-3-2-1 Grounding",
-        intro="Use your senses to reconnect with the room around you one step at a time.",
+        title="Progressive Muscle Relaxation",
+        intro="Tense each muscle group for 5 seconds, then release and feel the wave of calm. Play the music and follow along.",
         steps=[
-            {"count": 5, "sense": "see", "prompt": "Name 5 things you can see right now."},
-            {"count": 4, "sense": "touch", "prompt": "Name 4 things you can physically feel."},
-            {"count": 3, "sense": "hear", "prompt": "Name 3 sounds you can hear."},
-            {"count": 2, "sense": "smell", "prompt": "Name 2 things you can smell."},
-            {"count": 1, "sense": "taste", "prompt": "Notice 1 thing you can taste."},
+            {"count": 1, "sense": "Hands & Fists", "prompt": "Clench both fists as tight as you can. Hold for 5 seconds… then release. Feel the warmth spread through your fingers."},
+            {"count": 2, "sense": "Shoulders", "prompt": "Raise your shoulders up to your ears. Squeeze tight for 5 seconds… then let them drop. Notice how much lighter they feel."},
+            {"count": 3, "sense": "Face", "prompt": "Scrunch your entire face — eyes, nose, mouth. Hold for 5 seconds… then relax completely. Let your jaw hang loose."},
+            {"count": 4, "sense": "Stomach", "prompt": "Tighten your core like you're bracing for impact. Hold for 5 seconds… then exhale and let your belly go soft."},
+            {"count": 5, "sense": "Legs & Feet", "prompt": "Push your feet into the floor and tense your thighs. Hold for 5 seconds… then release. Feel yourself sink into the chair."},
+            {"count": 6, "sense": "Full Body", "prompt": "Tense everything at once — fists, shoulders, face, core, legs. Hold for 5 seconds… then let it all go. Breathe deeply and feel the stillness."},
         ],
     )
 

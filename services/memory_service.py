@@ -7,7 +7,7 @@ from db.supabase_client import get_settings, get_supabase_admin_client
 from models.schemas import MemoryResponse
 from services.logging import get_logger
 
-logger = get_logger("tea.memory")
+logger = get_logger("vent.memory")
 
 
 def _vector_literal(embedding: list[float]) -> str:
@@ -23,7 +23,7 @@ async def embed_text(text: str) -> list[float]:
     headers = {
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://tea.app",
+        "HTTP-Referer": "https://vent.app",
         "X-Title": settings.app_name,
     }
     payload = {
@@ -120,8 +120,10 @@ async def _extract_memories_with_ai(chat_id: str, text: str, mood_tag: str | Non
     prompt = (
         f"You are a memory extractor for a journaling app. The user is talking about {chat_name}.\n"
         f"User's current emotion/mood: {mood_tag or 'Not specified'}\n"
-        "Extract 1-3 short, factual bullet points about what happened, how the user feels, or core recurring sentiments.\n"
-        "Keep each point under 15 words. Include the user's emotional state if it seems significant.\n"
+        "Extract 1-3 clear, insightful bullet points about what happened or how the user feels.\n"
+        "Each point should be a complete thought that provides enough context to be understood later without the original message.\n"
+        "IMPORTANT: Include specific quotes or 'exact phrases' from the user in quotation marks if they are significant.\n"
+        "Aim for 15-30 words per point to ensure clarity. Focus on patterns, major events, or deep-seated feelings.\n"
         "If there's nothing significant to remember, return an empty list.\n"
         "Format: Return ONLY the bullet points, one per line, no numbering, no symbols.\n\n"
         f"User Message: {text}"
@@ -130,7 +132,7 @@ async def _extract_memories_with_ai(chat_id: str, text: str, mood_tag: str | Non
     headers = {
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://tea.app",
+        "HTTP-Referer": "https://vent.app",
         "X-Title": settings.app_name,
     }
     models = [settings.primary_model, settings.fallback_model]

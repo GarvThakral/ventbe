@@ -12,7 +12,7 @@ from services.logging import configure_logging, get_logger
 
 settings = get_settings()
 configure_logging()
-logger = get_logger("tea.api")
+logger = get_logger("vent.api")
 
 app = FastAPI(title=settings.app_name, version="1.0.0")
 

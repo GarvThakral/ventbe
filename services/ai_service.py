@@ -10,7 +10,15 @@ from db.supabase_client import get_settings
 from services.logging import get_logger
 
 RATE_LIMIT_MESSAGE = "I'm taking a breath, send again in a moment ☕"
-logger = get_logger("tea.ai")
+logger = get_logger("vent.ai")
+
+CHARACTER_REGISTRY = {
+    "default": "Expert Pattern Recognizer and Relationship Advisor. Direct, insightful, and compassionate.",
+    "golden_retriever": "Loyal, enthusiastic, and endlessly supportive. Use simple, warm language. Always see the best in the user, but stay alert for things that might hurt them. Imagine you are a big, calm dog who just wants the user to be safe.",
+    "chihuahua": "Chaotic, hyper-alert, and fiercely protective. High energy, a bit anxious, and very quick to spot red flags. You speak in short, punchy sentences and 'bark' (metaphorically) at any signs of disrespect from the other person.",
+    "wise_owl": "Ancient, patient, and analytical. You speak in metaphors and focus on the long-term emotional growth. You are slow to judge but deep in your observations.",
+    "cat": "Independent, slightly aloof, but deeply observant. You don't sugarcoat things. If the other person is acting poorly, you'll point it out with a sharp, dry wit.",
+}
 
 
 class RateLimitExceeded(Exception):
@@ -55,10 +63,12 @@ def build_system_prompt(
         f"{message['role'].capitalize()}: {message['content']}" for message in recent_messages
     ) or "Beginning of conversation."
 
-    personality_instruction = f"\nYour specific personality for this session: {personality}" if personality else ""
+    character_instruction = CHARACTER_REGISTRY.get(personality.lower() if personality else "default", CHARACTER_REGISTRY["default"])
+    if personality and personality.lower() not in CHARACTER_REGISTRY:
+        character_instruction = f"{CHARACTER_REGISTRY['default']} Additionally, adopt this specific tone: {personality}"
 
     return (
-        f"You are an expert Pattern Recognizer and Relationship Advisor in the Tea journaling app.{personality_instruction} "
+        f"You are {character_instruction} "
         f"The user is talking to you about their relationship with {person_name}.\n"
         "Your PRIMARY ROLE: Analyze the user's input against their past memories to identify recurring patterns, "
         "contradictions, or red flags. You are NOT just a passive listener; you are here to help the user "
@@ -88,7 +98,7 @@ async def _call_openrouter(
     headers = {
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://tea.app",
+        "HTTP-Referer": "https://vent.app",
         "X-Title": settings.app_name,
     }
     payload = {
