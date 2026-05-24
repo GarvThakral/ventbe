@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db.supabase_client import get_settings
 from models.schemas import HealthResponse
-from routers import auth, chats, messages, wellness
+from routers import auth, chats, messages, wellness, payments
 from services.logging import configure_logging, get_logger
 
 settings = get_settings()
@@ -28,6 +28,14 @@ app.include_router(auth.router)
 app.include_router(chats.router)
 app.include_router(messages.router)
 app.include_router(wellness.router)
+app.include_router(payments.router)
+
+
+@app.post("/api/webhooks/dodo")
+async def dodo_webhook_alias(request: Request):
+    from routers.payments import dodo_webhook
+    return await dodo_webhook(request)
+
 
 
 @app.middleware("http")
@@ -69,6 +77,13 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 def root() -> HealthResponse:
     logger.debug("Health root hit")
     return HealthResponse()
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+@app.get("/favicon.png", include_in_schema=False)
+async def favicon():
+    from fastapi import Response
+    return Response(status_code=204)
 
 
 @app.get("/health", response_model=HealthResponse)

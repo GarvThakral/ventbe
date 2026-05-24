@@ -13,14 +13,6 @@ from services.auth_service import (
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-@router.post("/toggle-premium")
-def toggle_premium_route(user: UserResponse = Depends(require_current_user)) -> dict:
-    admin_client = get_supabase_admin_client()
-    new_status = not user.is_premium
-    admin_client.table("profiles").update({"is_premium": new_status}).eq("id", user.id).execute()
-    return {"is_premium": new_status}
-
-
 @router.post("/signup", response_model=AuthResponse)
 def signup_route(payload: SignupRequest) -> AuthResponse:
     return signup(payload)

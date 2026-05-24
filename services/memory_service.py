@@ -77,7 +77,31 @@ async def retrieve_relevant_memories(
         return []
 
     rows = getattr(response, "data", None) or []
-    return [MemoryResponse(**row) for row in rows]
+    memories = [MemoryResponse(**row) for row in rows]
+
+    is_premium = False
+    try:
+        user_res = admin_client.table("profiles").select("is_premium").eq("id", user_id).single().execute()
+        is_premium = user_res.data.get("is_premium", False) if user_res.data else False
+    except Exception:
+        pass
+
+    if not is_premium:
+        from datetime import datetime, timedelta, timezone
+        cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+        filtered = []
+        for m in memories:
+            if m.created_at:
+                m_dt = m.created_at
+                if m_dt.tzinfo is None:
+                    m_dt = m_dt.replace(tzinfo=timezone.utc)
+                if m_dt >= cutoff:
+                    filtered.append(m)
+            else:
+                filtered.append(m)
+        return filtered
+
+    return memories
 
 
 def get_recent_memories(
@@ -87,15 +111,27 @@ def get_recent_memories(
 ) -> list[MemoryResponse]:
     admin_client = get_supabase_admin_client()
     try:
-        response = (
+        is_premium = False
+        try:
+            user_res = admin_client.table("profiles").select("is_premium").eq("id", user_id).single().execute()
+            is_premium = user_res.data.get("is_premium", False) if user_res.data else False
+        except Exception:
+            pass
+
+        query = (
             admin_client.table("memories")
             .select("id, content, created_at")
             .eq("user_id", user_id)
             .eq("chat_id", chat_id)
             .order("created_at", desc=True)
-            .limit(limit)
-            .execute()
         )
+
+        if not is_premium:
+            from datetime import datetime, timedelta, timezone
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+            query = query.gte("created_at", cutoff)
+
+        response = query.limit(limit).execute()
         rows = getattr(response, "data", None) or []
         return [MemoryResponse(**row) for row in rows]
     except Exception as e:
@@ -221,17 +257,33 @@ async def store_memory_if_significant(
 
 def list_memories(user_id: str, chat_id: str, limit: int = 50) -> list[MemoryResponse]:
     admin_client = get_supabase_admin_client()
-    response = (
-        admin_client.table("memories")
-        .select("id, content, created_at")
-        .eq("user_id", user_id)
-        .eq("chat_id", chat_id)
-        .order("created_at", desc=True)
-        .limit(limit)
-        .execute()
-    )
-    rows = getattr(response, "data", None) or []
-    return [MemoryResponse(**row) for row in rows]
+    try:
+        is_premium = False
+        try:
+            user_res = admin_client.table("profiles").select("is_premium").eq("id", user_id).single().execute()
+            is_premium = user_res.data.get("is_premium", False) if user_res.data else False
+        except Exception:
+            pass
+
+        query = (
+            admin_client.table("memories")
+            .select("id, content, created_at")
+            .eq("user_id", user_id)
+            .eq("chat_id", chat_id)
+            .order("created_at", desc=True)
+        )
+
+        if not is_premium:
+            from datetime import datetime, timedelta, timezone
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+            query = query.gte("created_at", cutoff)
+
+        response = query.limit(limit).execute()
+        rows = getattr(response, "data", None) or []
+        return [MemoryResponse(**row) for row in rows]
+    except Exception as e:
+        logger.error("Error listing memories: %s", str(e))
+        return []
 
 
 def clear_memories(user_id: str, chat_id: str) -> dict[str, Any]:

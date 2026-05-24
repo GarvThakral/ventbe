@@ -110,6 +110,21 @@ def create_chat(
     user: UserResponse = Depends(require_current_user),
 ) -> ChatResponse:
     admin_client = get_supabase_admin_client()
+    
+    if not user.is_premium:
+        chats_count_res = (
+            admin_client.table("chats")
+            .select("id", count="exact")
+            .eq("user_id", user.id)
+            .execute()
+        )
+        existing_count = getattr(chats_count_res, "count", 0)
+        if existing_count >= 3:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Free tier is limited to 3 chats. Upgrade to Premium for unlimited chats! ✨"
+            )
+
     response = (
         admin_client.table("chats")
         .insert(

@@ -9,7 +9,7 @@ import httpx
 from db.supabase_client import get_settings
 from services.logging import get_logger
 
-RATE_LIMIT_MESSAGE = "I'm taking a breath, send again in a moment ☕"
+RATE_LIMIT_MESSAGE = "I'm taking a breath, send again in a moment 🌬️"
 logger = get_logger("vent.ai")
 
 CHARACTER_REGISTRY = {

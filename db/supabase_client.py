@@ -71,6 +71,10 @@ class Settings:
             "OPENROUTER_EMBEDDING_MODEL",
             "sentence-transformers/all-minilm-l6-v2",
         )
+        self.dodo_payments_api_key = os.getenv("DODO_PAYMENTS_API_KEY", "")
+        self.dodo_payments_webhook_secret = os.getenv("DODO_PAYMENTS_WEBHOOK_SECRET", "")
+        self.dodo_payments_product_id = os.getenv("DODO_PAYMENTS_PRODUCT_ID", "")
+
 
 
 @lru_cache
